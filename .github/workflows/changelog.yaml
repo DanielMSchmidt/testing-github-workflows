@@ -16,8 +16,7 @@ on:
 # intentionally has no write access and only limited read access to the
 # repository.
 permissions:
-  contents: write
-  issues: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -45,8 +44,6 @@ jobs:
         with:
           script: |
             async function createOrUpdateChangelogComment(commentDetails, deleteComment) {
-                console.log(commentDetails);
-                console.log(deleteComment);
                 const commentStart = "## Changelog Warning"
                 
                 const body = commentStart + "\n\n" + commentDetails;
