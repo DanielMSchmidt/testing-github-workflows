@@ -56,7 +56,7 @@ jobs:
                     owner,
                     repo,
                 });
-                const existingComment = allComments.find(c => c.body.startsWith(commentStart);
+                const existingComment = allComments.find(c => c.body.startsWith(commentStart));
                 const comment_id = existingComment?.id;
                 
                 if (deleteComment) {
