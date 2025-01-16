@@ -48,7 +48,7 @@ jobs:
                 const commentDetails = "An issue with this PRs changelog has been detected: " + value
                 
                 const body = commentStart + "\n\n" + commentDetails;
-                const { issue_number } = context.issue;
+                const { number: issue_number } = context.issue;
                 const { owner, repo } = context.repo;
                 
                 // List all comments
