@@ -124,7 +124,11 @@ jobs:
             if (noChangelogNeededLabel) {
                 if (unreleasedChangesPresent || backportedChangesPresent) {
                     await createOrUpdateChangelogComment("Please remove either the 'no-changelog-needed' label or the changelog entry from this PR.");
+                    return;
                 }
+                
+                // Nothing to complain about, so delete any existing comment
+                await createOrUpdateChangelogComment("", true);
                 return;
             }
             
