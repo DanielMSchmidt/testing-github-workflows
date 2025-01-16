@@ -33,13 +33,64 @@ jobs:
               - '.changes/unreleased/*.yaml'
             backported:
               - '.changes/backported/*.yaml'
+            changelog:
+              - 'CHANGELOG.md'
+            version:
+              - 'version/VERSION'
 
       - name: "Check for changelog entry"
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            async function createOrUpdateChangelogComment(value, deleteComment) {
+                const commentStart = "## Changelog Warning"
+                const commentDetails = "An issue with this PRs changelog has been detected: " + value
+                
+                const body = commentStart + "\n\n" + commentDetails;
+                const { issue_number } = context.issue;
+                const { owner, repo } = context.repo;
+                
+                // List all comments
+                const allComments = await octokit.rest.issues.listComments({
+                    issue_number,
+                    owner,
+                    repo,
+                });
+                const existingComment = allComments.find(c => c.body.startsWith(commentStart);
+                const comment_id = existingComment?.id;
+                
+                if (deleteComment) {
+                    if (existingComment) {
+                        await octokit.rest.issues.deleteComment({
+                            owner,
+                            repo,
+                            comment_id,
+                        });
+                    }
+                    return;
+                }
+                
+                if (existingComment) {
+                    await octokit.rest.issues.updateComment({
+                        owner,
+                        repo,
+                        comment_id,
+                        body,
+                    });
+                } else {
+                    await octokit.rest.issues.createComment({
+                        owner,
+                        repo,
+                        issue_number,
+                        body,
+                    });
+                }
+            }
+            
             const unreleasedChangesPresent = ${{steps.changelog.outputs.unreleased}};
             const backportedChangesPresent = ${{steps.changelog.outputs.backported}};
+            const changelogChangesPresent = ${{steps.changelog.outputs.changelog}};
+            const versionChangesPresent = ${{steps.changelog.outputs.version}};
 
             const prLabels = await github.rest.issues.listLabelsOnIssue({
                 issue_number: context.issue.number,
@@ -49,6 +100,16 @@ jobs:
             const backportLabel = prLabels.data.find(label => label.name.includes('-backport'));
             const noChangelogNeededLabel = prLabels.data.find(label => label.name === 'no-changelog-needed');
             const dependenciesLabel = prLabels.data.find(label => label.name === 'dependencies');
+
+            // We want to prohibit contributors from directly changing the CHANGELOG.md, it's 
+            // generated so all changes will be lost during the release process.
+            // Therefore we only allow the changelog to change together with the version.
+            // In very rare cases where we generate changes in the changelog without changing the 
+            // version we will just ignore this failing check.
+            if (changelogChangesPresent && !versionChangesPresent) {
+                core.setFailed("Please don't edit the CHANGELOG.md manually. We use changie to control the Changelog generation, please use 'npx changie new' to create a new changelog entry.");
+                return;
+            }
 
             if (dependenciesLabel) {
                 return;
