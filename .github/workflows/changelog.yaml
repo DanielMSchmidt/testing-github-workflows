@@ -60,6 +60,7 @@ jobs:
             if (backportLabel) {
                 if (unreleasedChangesPresent) {
                     core.setFailed("Please move the changelog entry from `./.changes/unreleased` to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    return;
                 }
                 
                 if (!backportedChangesPresent) {
@@ -68,6 +69,7 @@ jobs:
             } else {
                 if (backportedChangesPresent) {
                     core.setFailed("Please move the changelog entry from `./.changes/backported` to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    return;
                 }
 
                 if (!unreleasedChangesPresent) {
