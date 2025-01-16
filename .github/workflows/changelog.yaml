@@ -52,7 +52,7 @@ jobs:
                 const { owner, repo } = context.repo;
                 
                 // List all comments
-                const allComments = await octokit.rest.issues.listComments({
+                const allComments = await github.rest.issues.listComments({
                     issue_number,
                     owner,
                     repo,
@@ -62,7 +62,7 @@ jobs:
                 
                 if (deleteComment) {
                     if (existingComment) {
-                        await octokit.rest.issues.deleteComment({
+                        await github.rest.issues.deleteComment({
                             owner,
                             repo,
                             comment_id,
@@ -74,14 +74,14 @@ jobs:
                 core.setFailed(value);
 
                 if (existingComment) {
-                    await octokit.rest.issues.updateComment({
+                    await github.rest.issues.updateComment({
                         owner,
                         repo,
                         comment_id,
                         body,
                     });
                 } else {
-                    await octokit.rest.issues.createComment({
+                    await github.rest.issues.createComment({
                         owner,
                         repo,
                         issue_number,
