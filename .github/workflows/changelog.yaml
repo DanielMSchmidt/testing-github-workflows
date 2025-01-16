@@ -57,6 +57,7 @@ jobs:
                     owner,
                     repo,
                 });
+                console.log(allComments)
                 const existingComment = allComments.find(c => c.body.startsWith(commentStart));
                 const comment_id = existingComment?.id;
                 
