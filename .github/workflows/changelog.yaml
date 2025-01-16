@@ -44,10 +44,8 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            async function createOrUpdateChangelogComment(value, deleteComment) {
-
+            async function createOrUpdateChangelogComment(commentDetails, deleteComment) {
                 const commentStart = "## Changelog Warning"
-                const commentDetails = "An issue with this PRs changelog has been detected: " + value
                 
                 const body = commentStart + "\n\n" + commentDetails;
                 const { number: issue_number } = context.issue;
@@ -74,7 +72,7 @@ jobs:
                     return;
                 }
 
-                core.setFailed(value);
+                core.setFailed(commentDetails);
 
                 if (existingComment) {
                     await github.rest.issues.updateComment({
