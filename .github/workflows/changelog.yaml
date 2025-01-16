@@ -107,7 +107,7 @@ jobs:
             // In very rare cases where we generate changes in the changelog without changing the 
             // version we will just ignore this failing check.
             if (changelogChangesPresent && !versionChangesPresent) {
-                core.setFailed("Please don't edit the CHANGELOG.md manually. We use changie to control the Changelog generation, please use 'npx changie new' to create a new changelog entry.");
+                await createOrUpdateChangelogComment("Please don't edit the CHANGELOG.md manually. We use changie to control the Changelog generation, please use 'npx changie new' to create a new changelog entry.");
                 return;
             }
 
@@ -117,27 +117,32 @@ jobs:
 
             if (noChangelogNeededLabel) {
                 if (unreleasedChangesPresent || backportedChangesPresent) {
-                    core.setFailed("Please remove either the 'no-changelog-needed' label or the changelog entry from this PR.");
+                    await createOrUpdateChangelogComment("Please remove either the 'no-changelog-needed' label or the changelog entry from this PR.");
                 }
                 return;
             }
             
             if (backportLabel) {
                 if (unreleasedChangesPresent) {
-                    core.setFailed("Please move the changelog entry from `./.changes/unreleased` to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    await createOrUpdateChangelogComment("Please move the changelog entry from `./.changes/unreleased` to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
                     return;
                 }
                 
                 if (!backportedChangesPresent) {
-                    core.setFailed("Please add a changelog entry to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    await createOrUpdateChangelogComment("Please add a changelog entry to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    return;
                 }
             } else {
                 if (backportedChangesPresent) {
-                    core.setFailed("Please move the changelog entry from `./.changes/backported` to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    await createOrUpdateChangelogComment("Please move the changelog entry from `./.changes/backported` to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
                     return;
                 }
 
                 if (!unreleasedChangesPresent) {
-                    core.setFailed("Please add a changelog entry to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    await createOrUpdateChangelogComment("Please add a changelog entry to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                    return;
                 }
             }
+
+            // Nothing to complain about, so delete any existing comment
+            await createOrUpdateChangelogComment("", true);
