@@ -9,6 +9,8 @@ on:
       - ready_for_review
       - reopened
       - synchronize
+      - labeled
+      - unlabeled
 
 # This workflow runs for not-yet-reviewed external contributions and so it
 # intentionally has no write access and only limited read access to the
@@ -52,26 +54,23 @@ jobs:
                 if (unreleasedChangesPresent || backportedChangesPresent) {
                     core.setFailed("Please remove either the 'no-changelog-needed' label or the changelog entry from this PR.");
                 }
-
                 return;
             }
+            
+            if (backportLabel) {
+                if (unreleasedChangesPresent) {
+                    core.setFailed("Please move the changelog entry from `./.changes/unreleased` to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                }
+                
+                if (!backportedChangesPresent) {
+                    core.setFailed("Please add a changelog entry to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                }
+            } else {
+                if (backportedChangesPresent) {
+                    core.setFailed("Please move the changelog entry from `./.changes/backported` to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                }
 
-            if (!backportLabel && !unreleasedChangesPresent) {
-                core.setFailed("Please add a changelog entry to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
-                return;
-            }
-
-            if (backportLabel && !backportedChangesPresent) {
-                core.setFailed("Please add a changelog entry to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
-                return;
-            }
-
-            if (backportLabel && unreleasedChangesPresent) {
-                core.setFailed("Please move the changelog entry from `./.changes/unreleased` to `./.changes/backported` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
-                return;
-            }
-
-            if (!backportLabel && backportedChangesPresent) {
-                core.setFailed("Please move the changelog entry from `./.changes/backported` to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
-                return;
+                if (!unreleasedChangesPresent) {
+                    core.setFailed("Please add a changelog entry to `./.changes/unreleased` for this change. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.");
+                }
             }
