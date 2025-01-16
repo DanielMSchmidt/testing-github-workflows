@@ -17,6 +17,7 @@ on:
 # repository.
 permissions:
   contents: read
+  issues: write
 
 jobs:
   check-changelog-entry:
