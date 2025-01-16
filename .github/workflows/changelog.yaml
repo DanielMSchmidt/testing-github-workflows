@@ -113,7 +113,7 @@ jobs:
             // In very rare cases where we generate changes in the changelog without changing the 
             // version we will just ignore this failing check.
             if (changelogChangesPresent && !versionChangesPresent) {
-                await createOrUpdateChangelogComment("Please don't edit the CHANGELOG.md manually. We use changie to control the Changelog generation, please use 'npx changie new' to create a new changelog entry.");
+                await createOrUpdateChangelogComment("Please don't edit the CHANGELOG.md manually. We use changie to control the Changelog generation, please use `npx changie new` to create a new changelog entry.");
                 return;
             }
 
