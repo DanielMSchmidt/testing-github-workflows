@@ -16,7 +16,7 @@ on:
 # intentionally has no write access and only limited read access to the
 # repository.
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
