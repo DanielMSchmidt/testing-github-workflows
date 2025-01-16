@@ -48,7 +48,11 @@ jobs:
             });
             const backportLabel = prLabels.data.find(label => label.name.includes('-backport'));
             const noChangelogNeededLabel = prLabels.data.find(label => label.name === 'no-changelog-needed');
+            const dependenciesLabel = prLabels.data.find(label => label.name === 'dependencies');
 
+            if (dependenciesLabel) {
+                return;
+            }
 
             if (noChangelogNeededLabel) {
                 if (unreleasedChangesPresent || backportedChangesPresent) {
