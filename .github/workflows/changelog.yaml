@@ -52,11 +52,11 @@ jobs:
                 const { owner, repo } = context.repo;
                 
                 // List all comments
-                const allComments = await github.rest.issues.listComments({
+                const allComments = (await github.rest.issues.listComments({
                     issue_number,
                     owner,
                     repo,
-                });
+                })).data;
                 console.log(allComments)
                 const existingComment = allComments.find(c => c.body.startsWith(commentStart));
                 const comment_id = existingComment?.id;
