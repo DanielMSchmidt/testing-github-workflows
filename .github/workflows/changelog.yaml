@@ -45,6 +45,8 @@ jobs:
         with:
           script: |
             async function createOrUpdateChangelogComment(commentDetails, deleteComment) {
+                console.log(commentDetails);
+                console.log(deleteComment);
                 const commentStart = "## Changelog Warning"
                 
                 const body = commentStart + "\n\n" + commentDetails;
@@ -57,7 +59,7 @@ jobs:
                     owner,
                     repo,
                 })).data;
-                console.log(allComments)
+
                 const existingComment = allComments.find(c => c.body.startsWith(commentStart));
                 const comment_id = existingComment?.id;
                 
