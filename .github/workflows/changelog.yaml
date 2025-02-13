@@ -117,6 +117,18 @@ jobs:
                       const currentVersion = currentVersionParts.join(".");
 
                       const allVersions = [currentVersion, ...backportVersions]
+                      allVersions.sort((a, b) => {
+                        const as = a.split(".").map(Number);
+                        const bs = b.split(".").map(Number);
+
+                        if (as[0] !== bs[0]) {
+                          return as[0] - bs[0];
+                        }
+                        
+                        if (as[1] !== bs[1]) {
+                          return as[1] - bs[1];
+                        }
+                      });
 
                       const noChangelogNeededLabel = prLabels.data.find(label => label.name === 'no-changelog-needed');
                       const dependenciesLabel = prLabels.data.find(label => label.name === 'dependencies');
@@ -146,16 +158,19 @@ jobs:
                           return;
                       }
 
-                      const versionsMissingChangesEntry = allVersions.filter(version => !changedChangesFiles.some(filePath => filePath.includes("/v"+version+"/")))
-                      const versionsWithUnexpectedChangesEntry = changedChangesFiles.filter(filePath => !allVersions.some(version => filePath.includes("/v"+version+"/") ))
+                      // We only want to have a changelog entry for the oldest version this PR will
+                      // land in.
+                      const onlyExpectedChangeVersion = allVersions[0]
+                      const missingChangelogEntry = !changedChangesFiles.some(filePath => filePath.includes("/v"+onlyExpectedChangeVersion+"/"))
+                      const unexpectedChangelogEntry = changedChangesFiles.filter(filePath => !filePath.includes("/v"+onlyExpectedChangeVersion+"/"))
 
-                      if (versionsMissingChangesEntry.length > 0) {
-                          await createOrUpdateChangelogComment(`Please add a changelog entry for the following versions: ${versionsMissingChangesEntry.join(", ")}. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.`);
+                      if (missingChangelogEntry) {
+                          await createOrUpdateChangelogComment(`Please add a changelog entry for in the .changes/v${onlyExpectedChangeVersion} folder. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.`);
                           return;
                       }
 
-                      if (versionsWithUnexpectedChangesEntry.length > 0) {
-                          await createOrUpdateChangelogComment(`Please remove the changelog entry for the following versions: ${versionsWithUnexpectedChangesEntry.join(", ")}. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.`);
+                      if (unexpectedChangelogEntry.length > 0) {
+                          await createOrUpdateChangelogComment(`Please remove the changelog entry for the following paths: ${unexpectedChangelogEntry.join(", ")}. If you believe this change does not need a changelog entry, please add the 'no-changelog-needed' label.`);
                           return;
                       }
 
