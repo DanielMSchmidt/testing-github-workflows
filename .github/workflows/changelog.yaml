@@ -108,7 +108,7 @@ jobs:
                           owner: context.repo.owner,
                           repo: context.repo.repo
                       });
-                      const backportLabels = prLabels.data.filter(label => label.name.endsWith(""-backport"));
+                      const backportLabels = prLabels.data.filter(label => label.name.endsWith("-backport"));
                       const backportVersions = backportLabels.map(label => label.name.split("-")[0]);
 
                       const currentVersionFile = fs.readFileSync("./version/VERSION", "utf-8");
